@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#dc2626">
+<meta name="description" content="Pokédex de la primera generación">
+<title>Mi Pokédex</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://unpkg.com/html5-qrcode" defer></script>
+<script src="js/app.js" defer></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+<header class="bg-red-600 text-white p-4"><div class="mx-auto max-w-3xl">
+<h1 class="text-2xl font-bold">Mi Pokédex</h1><p>Pokémon de la primera generación</p>
+</div></header>
+<main class="mx-auto max-w-3xl p-4">
+<section id="view-pokedex" class="view">
+<div class="bg-white rounded-lg shadow p-4 mb-4">
+<h2 class="text-xl font-bold mb-2">Mi colección</h2>
+<p id="collection-count">Pokémon capturados: 0 de 151</p>
+<div class="progress-track"><div id="collection-bar" class="progress-fill" style="width:0%"></div></div>
+<p id="collection-percent" class="text-sm mt-1">0% completado</p>
+</div>
+<div class="bg-white rounded-lg shadow p-4">
+<div class="flex items-center justify-between gap-2 mb-3">
+<h2 class="text-xl font-bold">Pokémon</h2>
+<input id="search-pokemon" class="border rounded p-2 search-input" type="search" placeholder="Buscar capturado..." aria-label="Buscar Pokémon">
+</div>
+<div id="pokedex-list" class="pokemon-grid"></div>
+<div id="empty-state" class="hidden text-center p-6">
+<div class="text-5xl mb-2">🔎</div><h3 class="font-bold">Tu Pokédex está vacía</h3>
+<p>Escanea tu primer código QR para comenzar tu aventura.</p>
+<button class="button button-red mt-3" data-go="scanner">Escanear Pokémon</button>
+</div>
+<p id="no-search-results" class="hidden text-center p-4">No se encontraron Pokémon.</p>
+</div>
+</section>
+
+<section id="view-scanner" class="view hidden">
+<div class="bg-white rounded-lg shadow p-4">
+<h2 class="text-xl font-bold mb-2">Escáner QR</h2>
+<p>Escanea un código con el formato <strong>pokemon:25</strong>.</p>
+<div id="qr-reader" class="qr-reader"></div>
+<p id="scanner-message" class="text-sm my-3">Presiona el botón para activar la cámara.</p>
+<div class="flex flex-wrap gap-2">
+<button id="start-camera" class="button button-red">Activar cámara</button>
+<button id="stop-camera" class="button button-gray" disabled>Detener cámara</button>
+</div>
+<div class="border-t mt-4 pt-4">
+<h3 class="font-bold mb-2">Probar sin cámara</h3>
+<form id="manual-qr-form" class="flex flex-wrap gap-2">
+<input id="manual-qr" class="border rounded p-2 flex-1" type="text" placeholder="Ejemplo: pokemon:25">
+<button class="button button-red" type="submit">Probar código</button>
+</form>
+<p class="text-xs text-gray-500 mt-2">Puedes probar con los códigos incluidos en la carpeta qr-codes.</p>
+</div>
+</div>
+</section>
+
+<section id="view-detail" class="view hidden">
+<div class="bg-white rounded-lg shadow p-4">
+<button class="button button-gray mb-3" data-go="pokedex">← Volver</button>
+<div id="detail-content"></div>
+</div>
+</section>
+
+<section id="view-progress" class="view hidden">
+<div class="bg-white rounded-lg shadow p-4">
+<h2 class="text-xl font-bold mb-3">Mi progreso</h2>
+<p id="progress-count">Pokémon capturados: 0 / 151</p>
+<p id="progress-percent" class="mb-2">Porcentaje completado: 0%</p>
+<div class="progress-track"><div id="progress-bar" class="progress-fill" style="width:0%"></div></div>
+<p id="progress-remaining" class="mt-3">Te faltan 151 Pokémon.</p>
+</div>
+</section>
+
+<section id="view-about" class="view hidden">
+<div class="bg-white rounded-lg shadow p-4">
+<h2 class="text-xl font-bold mb-3">Acerca de</h2>
+<p>Mi Pokédex permite registrar Pokémon de la primera generación mediante códigos QR.</p>
+<h3 class="font-bold mt-4 mb-1">Características</h3>
+<ul class="list-disc pl-5">
+<li>Consulta información desde PokéAPI.</li><li>Escaneo de códigos QR.</li>
+<li>Capturas guardadas en este dispositivo.</li><li>Progreso de los 151 Pokémon.</li>
+</ul>
+<p class="mt-4 text-sm">Proyecto escolar de Aplicaciones Móviles.</p>
+</div>
+</section>
+</main>
+
+<button id="scan-fab" class="fab" aria-label="Escanear Pokémon">＋ Escanear</button>
+<nav class="bottom-nav" aria-label="Navegación principal">
+<button class="nav-button active" data-view="pokedex"><span>📘</span>Pokédex</button>
+<button class="nav-button" data-view="progress"><span>📊</span>Progreso</button>
+<button class="nav-button" data-view="about"><span>ℹ️</span>Acerca de</button>
+</nav>
+
+<div id="capture-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+<div class="modal-card">
+<h2 id="modal-title" class="text-xl font-bold mb-2">Pokémon encontrado</h2>
+<div id="modal-pokemon"></div>
+<p class="my-3">¿Quieres agregar este Pokémon a tu Pokédex?</p>
+<div class="flex gap-2 justify-end">
+<button id="cancel-capture" class="button button-gray">Cancelar</button>
+<button id="confirm-capture" class="button button-red">Capturar</button>
+</div>
+</div></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body></html>
